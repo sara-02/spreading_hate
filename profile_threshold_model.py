@@ -13,22 +13,23 @@ class ProfileThresholdHate():
         for each_user in data:
             followers = data[each_user]
             if len(followers) == 0:
-                self.g.add_node(int(each_user))
+                self.g.add_node(each_user)
             else:
                 for each_follower in followers:
-                    self.g.add_edge(int(each_user), int(each_follower))
+                    self.g.add_edge(each_user, each_follower)
         assert self.g.number_of_nodes() == 385
-        self.model = ep.ProfileThresholdModel(self.g)
+        self.model=None
 
     def config_new_model(self, infected_nodes):
+        self.model = ep.ProfileThresholdModel(self.g)
         self.config = mc.Configuration()
         self.config.add_model_parameter('blocked', 0)
         self.config.add_model_parameter('adopter_rate', 0)
         if not infected_nodes:
-            infected_nodes = [94152234]
+            infected_nodes = ["94152234"]
         self.config.add_model_initial_configuration("Infected", infected_nodes)
-        self.threshold = 0.75
-        self.profile = 0.85
+        self.threshold = 0.075
+        self.profile = 0.085
         for i in self.g.nodes():
             self.config.add_node_configuration("threshold", i, self.threshold)
             self.config.add_node_configuration("profile", i, self.profile)
@@ -39,3 +40,15 @@ class ProfileThresholdHate():
         iterations = self.model.iteration_bunch(2)
         print(set(iterations[1]['status'].keys()))
         return set(iterations[1]['status'].keys())
+
+
+    def run_model_timewise(self, infected_nodes, max_iterations=50):
+    infected_updated=set()
+    for each_infected in infected_nodes:
+        infected_updated.add(each_infected)
+        for each_follower in self.g[each_infected]:
+            infected_updated.add(each_follower)
+    infected_nodes = list(infected_updated)
+    self.config_new_model(infected_nodes)
+    iterations = self.model.iteration_bunch(max_iterations)
+    return iterations
