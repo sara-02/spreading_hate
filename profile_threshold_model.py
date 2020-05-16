@@ -9,6 +9,10 @@ class ProfileThresholdHate():
         with open("data/actual/twitter_following_385.json", "r") as f:
             data = json.load(f)
         assert len(data.keys()) == 385
+        with open("data/results/adoptor_user385.json","r") as f:
+            self.adoptor_score = json.load(f)
+        with open("data/results/profile_user385.json","r") as f:
+            self.threshold_score = json.load(f)    
         self.g = nx.DiGraph()
         for each_user in data:
             followers = data[each_user]
@@ -31,8 +35,16 @@ class ProfileThresholdHate():
         self.threshold = 0.075
         self.profile = 0.085
         for i in self.g.nodes():
-            self.config.add_node_configuration("threshold", i, self.threshold)
-            self.config.add_node_configuration("profile", i, self.profile)
+            if i in self.threshold_score:
+                threshold = self.threshold_score[i]
+            else:
+                threshold = self.threshold
+            if i in self.adoptor_score:
+                profile = self.adoptor_score[i]
+            else:
+                profile = self.profile
+            self.config.add_node_configuration("threshold", i, threshold)
+            self.config.add_node_configuration("profile", i, profile)
         self.model.set_initial_status(self.config)
 
     def run_model(self, infected_nodes):
@@ -43,12 +55,12 @@ class ProfileThresholdHate():
 
 
     def run_model_timewise(self, infected_nodes, max_iterations=50):
-    infected_updated=set()
-    for each_infected in infected_nodes:
-        infected_updated.add(each_infected)
-        for each_follower in self.g[each_infected]:
-            infected_updated.add(each_follower)
-    infected_nodes = list(infected_updated)
-    self.config_new_model(infected_nodes)
-    iterations = self.model.iteration_bunch(max_iterations)
-    return iterations
+        infected_updated=set()
+        for each_infected in infected_nodes:
+            infected_updated.add(each_infected)
+            for each_follower in self.g[each_infected]:
+                infected_updated.add(each_follower)
+        infected_nodes = list(infected_updated)
+        self.config_new_model(infected_nodes)
+        iterations = self.model.iteration_bunch(max_iterations)
+        return iterations
