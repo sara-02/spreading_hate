@@ -10,9 +10,9 @@ class FormOutput():
     def update_output_scores(self, iteration_results):
         format_final = []
         tobe_hate_update = set()
-        for each_result in iteration_results:
+        for each_result in iteration_results[1:]:
             return_scores = deepcopy(self.user_data)
-            status = each_result.get('status',{})
+            status = each_result.get('status', {})
             for each_user in return_scores:
                 if each_user in status:
                     return_scores[each_user]['score'] = 1
