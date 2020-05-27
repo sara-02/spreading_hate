@@ -9,10 +9,10 @@ class ProfileThresholdHate():
         with open("data/actual/twitter_following_385.json", "r") as f:
             data = json.load(f)
         assert len(data.keys()) == 385
-        with open("data/results/adoptor_user385.json","r") as f:
+        with open("data/results/adoptor_user385.json", "r") as f:
             self.adoptor_score = json.load(f)
-        with open("data/results/profile_user385.json","r") as f:
-            self.threshold_score = json.load(f)    
+        with open("data/results/profile_user385.json", "r") as f:
+            self.threshold_score = json.load(f)
         self.g = nx.DiGraph()
         for each_user in data:
             followers = data[each_user]
@@ -22,7 +22,7 @@ class ProfileThresholdHate():
                 for each_follower in followers:
                     self.g.add_edge(each_user, each_follower)
         assert self.g.number_of_nodes() == 385
-        self.model=None
+        self.model = None
 
     def config_new_model(self, infected_nodes):
         self.model = ep.ProfileThresholdModel(self.g)
@@ -47,20 +47,9 @@ class ProfileThresholdHate():
             self.config.add_node_configuration("profile", i, profile)
         self.model.set_initial_status(self.config)
 
-    def run_model(self, infected_nodes):
+    def run_model(self, infected_nodes, max_iter=2):
+        if not infected_nodes:
+            infected_nodes = ["94152234"]
         self.config_new_model(infected_nodes)
-        iterations = self.model.iteration_bunch(2)
-        print(set(iterations[1]['status'].keys()))
-        return set(iterations[1]['status'].keys())
-
-
-    def run_model_timewise(self, infected_nodes, max_iterations=50):
-        infected_updated=set()
-        for each_infected in infected_nodes:
-            infected_updated.add(each_infected)
-            for each_follower in self.g[each_infected]:
-                infected_updated.add(each_follower)
-        infected_nodes = list(infected_updated)
-        self.config_new_model(infected_nodes)
-        iterations = self.model.iteration_bunch(max_iterations)
+        iterations = self.model.iteration_bunch(max_iter)
         return iterations

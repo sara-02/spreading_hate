@@ -17,25 +17,22 @@ def hello():
     return jsonify(result)
 
 
-@app.route('/api/test', methods=['GET', 'POST'])
-def dummy_test():
-    update_nodes = pth.run_model([])
-    print("un", len(update_nodes))
-    result_model = out_.update_iter_1_scores(update_nodes)
-    return jsonify(result_model)
-
-
-@app.route('/api/predict_single_iter', methods=['POST'])
+@app.route('/api/infect_predict', methods=['POST'])
 def predict():
     data = request.get_json()
-    infected_nodes = data.get("infected_nodes", [])
-    update_nodes = pth.run_model(infected_nodes)
-    print("un", len(update_nodes))
-    result_model = out_.update_iter_1_scores(update_nodes)
+    infected_nodes = data.get("infected_nodes")
+    if infected_nodes is None or len(infected_nodes) == 0:
+        return jsonify({"ERROR": "No input nodes provided."})
+    max_iterations = data.get("max_iter")
+    if max_iterations is None or max_iterations < 2:
+        return jsonify(
+            {"ERROR": "Max iter must be an Integer greater than 2."})
+    iterations_result = pth.run_model(infected_nodes,
+                                                      max_iterations)
+    result_model = out_.update_output_scores(iterations_result)
     return jsonify(result_model)
-
 
 if __name__ == '__main__':
     pth = ProfileThresholdHate()
     out_ = FormOutput()
-    app.run(host="localhost", port=8092, debug=True)
+    app.run(host="localhost", port=8092, debug=False)
