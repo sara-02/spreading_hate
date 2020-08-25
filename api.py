@@ -4,9 +4,10 @@ import json
 
 from profile_threshold_model import ProfileThresholdHate
 from form_js_output import FormOutput
+from flask_cors import CORS
 
 app = flask.Flask(__name__)
-
+CORS(app)
 
 @app.route('/', methods=['GET', 'POST'])
 def hello():
