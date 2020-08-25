@@ -1,5 +1,5 @@
-# requirements
-flask, networkx, ndblib
+# Requirements
+flask, networkx, ndblib, flask_CORS
 # Running the API
 `python3 api.py`
 ```python
