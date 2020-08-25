@@ -36,4 +36,4 @@ def predict():
 if __name__ == '__main__':
     pth = ProfileThresholdHate()
     out_ = FormOutput()
-    app.run(host="localhost", port=8092, debug=True)
+    app.run(host="localhost", port=8091, debug=True)
